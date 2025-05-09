@@ -1,44 +1,76 @@
 package org.example.models;
 
-import lombok.AllArgsConstructor;
+import java.util.Arrays;
 import org.example.models.interfaces.AcceptanceFunction;
 import org.example.models.interfaces.CoolingSchedule;
 import org.example.models.interfaces.EvaluationFunction;
 import org.example.models.interfaces.MoveFunction;
 
-@AllArgsConstructor
 public class SimulationExecutor {
-    private final AcceptanceFunction acceptanceFunction;
-    private final CoolingSchedule coolingSchedule;
-    private final EvaluationFunction evaluationFunction;
-    private final MoveFunction moveFunction;
-    private final double temperatureConstant;
-    private double[] values;
-    private double currentEvaluation;
-    private double temperature;
-    private int generation = 0;
+  public SimulationExecutor(
+      AcceptanceFunction acceptanceFunction,
+      CoolingSchedule coolingSchedule,
+      EvaluationFunction evaluationFunction,
+      MoveFunction moveFunction,
+      double coolingScheduleConstant,
+      double startingTemperature,
+      int maxGeneration,
+      double[] values) {
+    this.acceptanceFunction = acceptanceFunction;
+    this.coolingSchedule = coolingSchedule;
+    this.evaluationFunction = evaluationFunction;
+    this.moveFunction = moveFunction;
+    this.coolingScheduleConstant = coolingScheduleConstant;
+    this.startingTemperature = startingTemperature;
+    this.maxGeneration = maxGeneration;
+    this.values = values;
+    this.currentTemperature = startingTemperature;
+    this.currentEvaluation = evaluationFunction.evaluate(values);
+    this.currentGeneration = 0;
+  }
 
-    private void newGeneration() {
-        double[] suggestedValues = moveFunction.move(values);
-        double newValuesEvaluation = evaluationFunction.evaluate(suggestedValues);
-        boolean accept =acceptanceFunction.accept(currentEvaluation,newValuesEvaluation,temperature);
-        if(accept) {
-            values = suggestedValues;
-            currentEvaluation = newValuesEvaluation;
-        }
-        temperature = coolingSchedule.temperature(temperature,temperatureConstant,generation);
-        generation = generation+1;
-    }
-    public void execute(int generationMax) {
-        currentEvaluation= evaluationFunction.evaluate(values);
-        while(generation <= generationMax) {
-            newGeneration();
-        }
-        System.out.println("Evaluation: " + currentEvaluation);
-        System.out.println("Values: " );
-        for(double value : values) {
-            System.out.print(value + ", ");
-        }
-    }
+  private static final double MIN_TEMPERATURE = 0.00001;
 
+  private final AcceptanceFunction acceptanceFunction;
+  private final CoolingSchedule coolingSchedule;
+  private final EvaluationFunction evaluationFunction;
+  private final MoveFunction moveFunction;
+  private final double coolingScheduleConstant;
+  private final double startingTemperature;
+  private final int maxGeneration;
+  private double[] values;
+  private double currentTemperature;
+  private double currentEvaluation;
+  private int currentGeneration;
+
+  private void newGeneration() {
+    double[] suggestedValues = moveFunction.move(values.clone());
+    double suggestedValuesEvaluation = evaluationFunction.evaluate(suggestedValues);
+    boolean accept =
+        acceptanceFunction.accept(currentEvaluation, suggestedValuesEvaluation, currentTemperature);
+    if (accept) {
+      values = suggestedValues;
+      currentEvaluation = suggestedValuesEvaluation;
+    }
+    currentTemperature =
+        coolingSchedule.temperature(
+            currentTemperature, startingTemperature, coolingScheduleConstant, currentGeneration);
+    currentGeneration++;
+  }
+
+  public void execute() {
+    boolean maxGenerationReached = false;
+    boolean minTemperatureReached = false;
+
+    while (!maxGenerationReached && !minTemperatureReached) {
+      newGeneration();
+      maxGenerationReached = currentGeneration >= maxGeneration;
+      minTemperatureReached = currentTemperature <= MIN_TEMPERATURE;
+    }
+    if (maxGenerationReached) System.out.println("max generation reached");
+    if (minTemperatureReached) System.out.println("minimum temperature reached");
+
+    System.out.println("Evaluation: " + currentEvaluation);
+    System.out.println("Values: " + Arrays.toString(values));
+  }
 }

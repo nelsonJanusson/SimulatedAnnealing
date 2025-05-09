@@ -1,6 +1,6 @@
 package org.example.models.interfaces;
 
 public interface AcceptanceFunction {
-    public boolean accept(double oldCost, double newCost, double temperature);
-
+  public boolean accept(
+      double currentEvaluation, double suggestedValuesEvaluation, double currentTemperature);
 }
