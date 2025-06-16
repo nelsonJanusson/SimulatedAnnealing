@@ -1,5 +1,7 @@
 package org.example.models.interfaces;
 
+import org.example.models.Implementations.model.BemData;
+
 public interface MoveFunction {
-  public double[] move(double[] values);
+  public BemData move(BemData bemData);
 }

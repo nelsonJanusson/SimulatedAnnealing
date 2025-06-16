@@ -1,6 +1,8 @@
 package org.example.models;
 
 import java.util.Arrays;
+
+import org.example.models.Implementations.model.BemData;
 import org.example.models.interfaces.AcceptanceFunction;
 import org.example.models.interfaces.CoolingSchedule;
 import org.example.models.interfaces.EvaluationFunction;
@@ -15,7 +17,7 @@ public class SimulationExecutor {
       double coolingScheduleConstant,
       double startingTemperature,
       int maxGeneration,
-      double[] values) {
+      BemData bemData) {
     this.acceptanceFunction = acceptanceFunction;
     this.coolingSchedule = coolingSchedule;
     this.evaluationFunction = evaluationFunction;
@@ -23,9 +25,9 @@ public class SimulationExecutor {
     this.coolingScheduleConstant = coolingScheduleConstant;
     this.startingTemperature = startingTemperature;
     this.maxGeneration = maxGeneration;
-    this.values = values;
+    this.bemData = bemData;
     this.currentTemperature = startingTemperature;
-    this.currentEvaluation = evaluationFunction.evaluate(values);
+    this.currentEvaluation = evaluationFunction.evaluate(bemData);
     this.currentGeneration = 0;
   }
 
@@ -38,18 +40,21 @@ public class SimulationExecutor {
   private final double coolingScheduleConstant;
   private final double startingTemperature;
   private final int maxGeneration;
-  private double[] values;
+  private BemData bemData;
   private double currentTemperature;
   private double currentEvaluation;
   private int currentGeneration;
 
   private void newGeneration() {
-    double[] suggestedValues = moveFunction.move(values.clone());
-    double suggestedValuesEvaluation = evaluationFunction.evaluate(suggestedValues);
+    BemData suggestedBemData = moveFunction.move(bemData);
+    double suggestedValuesEvaluation = -1;
+    while (suggestedValuesEvaluation==-1){
+       suggestedValuesEvaluation = evaluationFunction.evaluate(suggestedBemData);
+    }
     boolean accept =
         acceptanceFunction.accept(currentEvaluation, suggestedValuesEvaluation, currentTemperature);
     if (accept) {
-      values = suggestedValues;
+      bemData = suggestedBemData;
       currentEvaluation = suggestedValuesEvaluation;
     }
     currentTemperature =
@@ -71,6 +76,11 @@ public class SimulationExecutor {
     if (minTemperatureReached) System.out.println("minimum temperature reached");
 
     System.out.println("Evaluation: " + currentEvaluation);
-    System.out.println("Values: " + Arrays.toString(values));
+
+    System.out.println("B : "+bemData.B());
+    System.out.println("chord : "+Arrays.toString(    bemData.chord()));
+    System.out.println("RPM : "+bemData.RPM());
+    System.out.println("radius : "+bemData.radius());
+
   }
 }

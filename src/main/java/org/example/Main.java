@@ -3,6 +3,7 @@ package org.example;
 import org.example.models.Implementations.acceptanceFunction.MetropolisCriterion;
 import org.example.models.Implementations.coolingSchedule.GeometricCooling;
 import org.example.models.Implementations.evaluationFunction.CustomEvaluation;
+import org.example.models.Implementations.model.BemData;
 import org.example.models.Implementations.moveFunction.CustomMove;
 import org.example.models.SimulationExecutor;
 
@@ -34,7 +35,20 @@ public class Main {
     these re the initial values chosen for the algorithm. you should replace them with reasonable starting values for your
     situation.
     */
-    double[] values = {10, 2, 6, 5, 4, 8};
+    /*
+a) Number of blades. >2
+b) Shaft’s angular velocity (rpm). >0
+c) 0 </= Pitch angle <90
+
+d) Airfoil geometry distribution in spanwise direction. (geometrical constrain (dedicated airfoil equation))
+
+e) 0</= Airfoil chord length distribution in spanwise direction. >/=1
+
+f) Diameter of the propeller <3
+there is also a constraint, namely the mach number has to be lower than 0.8. the mach number is calculated by this formula; machNumber = angular velocity (value b) × 0.5 × diameter (constrain f) ÷ 299.5
+
+*/
+    BemData bemData = null;
 
     SimulationExecutor simulationExecutor =
         new SimulationExecutor(
@@ -45,7 +59,7 @@ public class Main {
             0.9,
             0.5,
             5000,
-            values);
+                bemData);
 
     simulationExecutor.execute();
   }
