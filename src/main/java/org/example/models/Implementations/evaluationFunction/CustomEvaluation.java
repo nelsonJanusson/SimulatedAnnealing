@@ -4,11 +4,26 @@ import org.example.models.Implementations.model.BemData;
 import org.example.models.interfaces.EvaluationFunction;
 
 public class CustomEvaluation implements EvaluationFunction {
+  private double interpolate(double[] x, double[] y, double xi) {
+    for (int i = 0; i < x.length - 1; i++) {
+      if (xi >= x[i] && xi <= x[i + 1]) {
+        double t = (xi - x[i]) / (x[i + 1] - x[i]);
+        return y[i] + t * (y[i + 1] - y[i]);
+      }
+    }
+    if (xi < x[0]) {    // If xi is below x[0], return y[0]; if above x[last], return y[last].
+      return y[0];
+    } else {
+      return y[y.length - 1];
+    }
+  }
   @Override
-  static double evaluate(BemData bemData) {
+  public double evaluate(BemData bemData) {
+
     double radius = bemData.radius();
     int RPM = bemData.RPM();
     double[] chord = bemData.chord();
+    int B = bemData.B();
     final double thrustTolerance = 0.02; // Percentage away from final thrust value allowed
     final int segments = 20;            // Number of radial segments for BEM discretization
     final double betaLimit = Math.toRadians(70);    //A limit on how high the pitch angle (beta) gets ---->(it was found that this one makes sense. idk about the rest)
