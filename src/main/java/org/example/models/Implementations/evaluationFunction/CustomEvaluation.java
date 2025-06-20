@@ -235,7 +235,7 @@ public class CustomEvaluation implements EvaluationFunction {
     for (int i = 0; i < segments; i++) {
 
       if (Tsum < thrustLowerBound || Tsum > thrustUpperBound || radius > 1.5 || machTip > 0.8 || chord[i] < 0.01 || B <= 1
-              || !betaCheck || aValues[i] <= 0 || a_omegaValues[i] <= 0 || aValues[i] >= 0.4 || a_omegaValues[i] >= 0.3) {
+              || efficiency<0 || aValues[i] <= 0 || a_omegaValues[i] <= 0 || aValues[i] >= 0.4 || a_omegaValues[i] >= 0.3) {
         // design NOT valid.
         NotValid = true;
         break;
